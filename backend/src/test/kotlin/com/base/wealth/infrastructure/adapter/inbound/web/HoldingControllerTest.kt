@@ -1,8 +1,6 @@
 package com.base.wealth.infrastructure.adapter.inbound.web
 
 import com.base.wealth.application.dto.CreateHoldingRequest
-import com.base.wealth.domain.model.AssetClass
-import com.base.wealth.domain.model.Currency
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -51,12 +49,10 @@ class HoldingControllerTest {
     fun testCreateHolding() {
         val newHolding = CreateHoldingRequest(
             name = "Solana",
-            cls = AssetClass.CRYPTO,
+            cls = "Crypto",
             platform = "Binance",
             qty = 15.0,
-            value = 2250.0,
-            currency = Currency.USD,
-            change = 5.4
+            value = 2250.0
         )
 
         mockMvc.perform(

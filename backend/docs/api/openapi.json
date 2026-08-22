@@ -480,14 +480,7 @@
             "type": "string"
           },
           "cls": {
-            "type": "string",
-            "enum": [
-              "Cash",
-              "Fixed Income",
-              "Index Fund",
-              "Equity",
-              "Crypto"
-            ]
+            "type": "string"
           },
           "platform": {
             "type": "string"
@@ -499,28 +492,12 @@
           "value": {
             "type": "number",
             "format": "double"
-          },
-          "currency": {
-            "type": "string",
-            "enum": [
-              "USD",
-              "ARS",
-              "BTC",
-              "ETH",
-              "USDT"
-            ]
-          },
-          "change": {
-            "type": "number",
-            "format": "double"
           }
         }
       },
       "Holding": {
         "required": [
-          "change",
           "cls",
-          "currency",
           "id",
           "name",
           "platform",
@@ -536,14 +513,7 @@
             "type": "string"
           },
           "cls": {
-            "type": "string",
-            "enum": [
-              "Cash",
-              "Fixed Income",
-              "Index Fund",
-              "Equity",
-              "Crypto"
-            ]
+            "type": "string"
           },
           "platform": {
             "type": "string"
@@ -553,20 +523,6 @@
             "format": "double"
           },
           "value": {
-            "type": "number",
-            "format": "double"
-          },
-          "currency": {
-            "type": "string",
-            "enum": [
-              "USD",
-              "ARS",
-              "BTC",
-              "ETH",
-              "USDT"
-            ]
-          },
-          "change": {
             "type": "number",
             "format": "double"
           }
@@ -762,9 +718,7 @@
       },
       "CreateHoldingRequest": {
         "required": [
-          "change",
           "cls",
-          "currency",
           "name",
           "platform",
           "value"
@@ -775,14 +729,7 @@
             "type": "string"
           },
           "cls": {
-            "type": "string",
-            "enum": [
-              "Cash",
-              "Fixed Income",
-              "Index Fund",
-              "Equity",
-              "Crypto"
-            ]
+            "type": "string"
           },
           "platform": {
             "type": "string"
@@ -794,20 +741,6 @@
           "value": {
             "minimum": 0.0,
             "exclusiveMinimum": false,
-            "type": "number",
-            "format": "double"
-          },
-          "currency": {
-            "type": "string",
-            "enum": [
-              "USD",
-              "ARS",
-              "BTC",
-              "ETH",
-              "USDT"
-            ]
-          },
-          "change": {
             "type": "number",
             "format": "double"
           }
@@ -834,14 +767,7 @@
         "type": "object",
         "properties": {
           "cls": {
-            "type": "string",
-            "enum": [
-              "Cash",
-              "Fixed Income",
-              "Index Fund",
-              "Equity",
-              "Crypto"
-            ]
+            "type": "string"
           },
           "totalValueUSD": {
             "type": "number",
@@ -870,13 +796,7 @@
             "type": "string"
           },
           "type": {
-            "type": "string",
-            "enum": [
-              "Broker",
-              "Wallet",
-              "Bank",
-              "Exchange"
-            ]
+            "type": "string"
           },
           "totalValueUSD": {
             "type": "number",
@@ -894,7 +814,6 @@
       },
       "WealthSummaryResponse": {
         "required": [
-          "average24hChangePct",
           "byAssetClass",
           "byPlatform",
           "fxRateUSDARS",
@@ -913,10 +832,6 @@
             "format": "double"
           },
           "fxRateUSDARS": {
-            "type": "number",
-            "format": "double"
-          },
-          "average24hChangePct": {
             "type": "number",
             "format": "double"
           },
@@ -965,13 +880,7 @@
             "type": "string"
           },
           "type": {
-            "type": "string",
-            "enum": [
-              "Broker",
-              "Wallet",
-              "Bank",
-              "Exchange"
-            ]
+            "type": "string"
           }
         }
       },

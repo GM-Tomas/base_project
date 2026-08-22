@@ -25,9 +25,7 @@ class HoldingService(
             cls = request.cls,
             platform = request.platform,
             qty = request.qty,
-            value = request.value,
-            currency = request.currency,
-            change = request.change
+            value = request.value
         )
         return holdingRepository.save(newHolding)
     }
@@ -39,9 +37,7 @@ class HoldingService(
             cls = request.cls ?: existing.cls,
             platform = request.platform ?: existing.platform,
             qty = request.qty ?: existing.qty,
-            value = request.value ?: existing.value,
-            currency = request.currency ?: existing.currency,
-            change = request.change ?: existing.change
+            value = request.value ?: existing.value
         )
         return holdingRepository.save(updated)
     }

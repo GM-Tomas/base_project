@@ -60,3 +60,9 @@ openApi {
 tasks.named("forkedSpringBootRun") {
     doNotTrackState("Forks the app only to scrape /v3/api-docs; not meaningfully cacheable")
 }
+
+// generateOpenApiDocs has no inputs Gradle can see (its real input is the live HTTP response),
+// so without this it gets marked UP-TO-DATE and silently skips re-scraping on every commit.
+tasks.named("generateOpenApiDocs") {
+    outputs.upToDateWhen { false }
+}

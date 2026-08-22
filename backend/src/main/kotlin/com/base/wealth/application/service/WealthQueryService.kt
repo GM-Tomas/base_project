@@ -30,12 +30,6 @@ class WealthQueryService(
         val totalUSD = holdings.sumOf { it.value }
         val totalARS = totalUSD * fxRateUSDARS
 
-        val avgChange = if (holdings.isNotEmpty()) {
-            holdings.sumOf { it.change * it.value } / (if (totalUSD > 0) totalUSD else 1.0)
-        } else {
-            0.0
-        }
-
         // Distribución por clase de activo
         val byClass = holdings.groupBy { it.cls }.map { (cls, list) ->
             val classVal = list.sumOf { it.value }
@@ -65,7 +59,6 @@ class WealthQueryService(
             totalNetWorthUSD = (totalUSD * 100.0).roundToLong() / 100.0,
             totalNetWorthARS = (totalARS * 100.0).roundToLong() / 100.0,
             fxRateUSDARS = fxRateUSDARS,
-            average24hChangePct = (avgChange * 10.0).roundToLong() / 10.0,
             totalHoldingsCount = holdings.size,
             byAssetClass = byClass,
             byPlatform = byPlatform

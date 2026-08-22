@@ -22,7 +22,6 @@ data class WealthSummaryResponse(
     val totalNetWorthUSD: Double,
     val totalNetWorthARS: Double,
     val fxRateUSDARS: Double,
-    val average24hChangePct: Double,
     val totalHoldingsCount: Int,
     val byAssetClass: List<AssetClassBreakdown>,
     val byPlatform: List<PlatformBreakdown>
