@@ -1,0 +1,12 @@
+#!/bin/sh
+# Keeps backend/docs/api/openapi.json in sync with the API on every commit.
+# Enabled via: git config core.hooksPath .githooks
+
+if git diff --cached --name-only | grep -q '^backend/src/'; then
+  echo "backend/ changed — regenerating OpenAPI docs..."
+  (cd backend && ./gradlew generateOpenApiDocs -q) || {
+    echo "OpenAPI doc generation failed — commit aborted." >&2
+    exit 1
+  }
+  git add backend/docs/api/openapi.json
+fi

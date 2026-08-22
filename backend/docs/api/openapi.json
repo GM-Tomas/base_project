@@ -1,0 +1,1008 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "BASE Wealth Management \u0026 Tasks API",
+    "description": "REST API construida con Kotlin y Spring Boot 3 para gestión de activos patrimoniales, proyecciones financieras y tareas.",
+    "contact": {
+      "name": "BASE Engineering Team",
+      "email": "dev@base-wealth.internal"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Wealth",
+      "description": "Endpoints de resumen patrimonial, proyecciones financieras e histórico"
+    },
+    {
+      "name": "Platforms",
+      "description": "Endpoints de plataformas y entidades financieras"
+    },
+    {
+      "name": "Holdings",
+      "description": "Endpoints para la gestión de posiciones y activos financieros"
+    },
+    {
+      "name": "Tasks",
+      "description": "Endpoints para la gestión de tareas de usuario (Supabase compatible)"
+    },
+    {
+      "name": "Health",
+      "description": "Monitoreo del estado y disponibilidad de la API"
+    }
+  ],
+  "paths": {
+    "/api/v1/holdings/{id}": {
+      "get": {
+        "tags": [
+          "Holdings"
+        ],
+        "summary": "Obtiene el detalle de una posición por su ID",
+        "operationId": "getHoldingById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Holding"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Holdings"
+        ],
+        "summary": "Actualiza los datos de una posición existente",
+        "operationId": "updateHolding",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateHoldingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Holding"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Holdings"
+        ],
+        "summary": "Elimina una posición financiera",
+        "operationId": "deleteHolding",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/wealth/estimate": {
+      "post": {
+        "tags": [
+          "Wealth"
+        ],
+        "summary": "Calcula la proyección de interés compuesto y progreso de hitos financieros",
+        "operationId": "calculateEstimate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstimateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EstimateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks": {
+      "get": {
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Lista todas las tareas, opcionalmente filtradas por userId",
+        "operationId": "getAllTasks",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Task"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Crea una nueva tarea",
+        "operationId": "createTask",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTaskRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/holdings": {
+      "get": {
+        "tags": [
+          "Holdings"
+        ],
+        "summary": "Lista todas las posiciones financieras",
+        "operationId": "getAllHoldings",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Holding"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Holdings"
+        ],
+        "summary": "Crea una nueva posición de inversión",
+        "operationId": "createHolding",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateHoldingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Holding"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/{id}": {
+      "get": {
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Obtiene una tarea por su UUID",
+        "operationId": "getTaskById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Elimina una tarea",
+        "operationId": "deleteTask",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Actualiza el estado o título de una tarea",
+        "operationId": "updateTask",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wealth/summary": {
+      "get": {
+        "tags": [
+          "Wealth"
+        ],
+        "summary": "Obtiene el resumen consolidado de patrimonio neto, métricas y distribuciones",
+        "operationId": "getSummary",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WealthSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wealth/history": {
+      "get": {
+        "tags": [
+          "Wealth"
+        ],
+        "summary": "Obtiene la serie temporal histórica del portafolio",
+        "operationId": "getHistory",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HistorySnapshot"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/platforms": {
+      "get": {
+        "tags": [
+          "Platforms"
+        ],
+        "summary": "Lista todas las plataformas registradas",
+        "operationId": "getAllPlatforms",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlatformMeta"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Verifica el estado operativo del servicio backend",
+        "operationId": "checkHealth",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UpdateHoldingRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "cls": {
+            "type": "string",
+            "enum": [
+              "Cash",
+              "Fixed Income",
+              "Index Fund",
+              "Equity",
+              "Crypto"
+            ]
+          },
+          "platform": {
+            "type": "string"
+          },
+          "qty": {
+            "type": "number",
+            "format": "double"
+          },
+          "value": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "USD",
+              "ARS",
+              "BTC",
+              "ETH",
+              "USDT"
+            ]
+          },
+          "change": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "Holding": {
+        "required": [
+          "change",
+          "cls",
+          "currency",
+          "id",
+          "name",
+          "platform",
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "cls": {
+            "type": "string",
+            "enum": [
+              "Cash",
+              "Fixed Income",
+              "Index Fund",
+              "Equity",
+              "Crypto"
+            ]
+          },
+          "platform": {
+            "type": "string"
+          },
+          "qty": {
+            "type": "number",
+            "format": "double"
+          },
+          "value": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "USD",
+              "ARS",
+              "BTC",
+              "ETH",
+              "USDT"
+            ]
+          },
+          "change": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "EstimateRequest": {
+        "required": [
+          "contribution",
+          "years",
+          "yieldPct"
+        ],
+        "type": "object",
+        "properties": {
+          "contribution": {
+            "minimum": 0.0,
+            "exclusiveMinimum": false,
+            "type": "number",
+            "format": "double"
+          },
+          "yieldPct": {
+            "minimum": 0.0,
+            "exclusiveMinimum": false,
+            "type": "number",
+            "format": "double"
+          },
+          "years": {
+            "maximum": 50,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "initialPrincipal": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "EstimateResponse": {
+        "required": [
+          "annualYieldPct",
+          "initialPrincipal",
+          "milestones",
+          "monthlyContribution",
+          "totalFutureValue",
+          "totalInterestEarned",
+          "totalInvested",
+          "totalYears",
+          "yearlyBreakdown"
+        ],
+        "type": "object",
+        "properties": {
+          "initialPrincipal": {
+            "type": "number",
+            "format": "double"
+          },
+          "monthlyContribution": {
+            "type": "number",
+            "format": "double"
+          },
+          "annualYieldPct": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalYears": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalInvested": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalFutureValue": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalInterestEarned": {
+            "type": "number",
+            "format": "double"
+          },
+          "yearlyBreakdown": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/YearlyProjection"
+            }
+          },
+          "milestones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MilestoneProjection"
+            }
+          }
+        }
+      },
+      "MilestoneProjection": {
+        "required": [
+          "isAchieved",
+          "milestoneAmount"
+        ],
+        "type": "object",
+        "properties": {
+          "milestoneAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "monthsRequired": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "targetDateLabel": {
+            "type": "string"
+          },
+          "isAchieved": {
+            "type": "boolean"
+          }
+        }
+      },
+      "YearlyProjection": {
+        "required": [
+          "futureValue",
+          "interestEarned",
+          "totalInvested",
+          "year"
+        ],
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalInvested": {
+            "type": "number",
+            "format": "double"
+          },
+          "futureValue": {
+            "type": "number",
+            "format": "double"
+          },
+          "interestEarned": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "CreateTaskRequest": {
+        "required": [
+          "completed",
+          "title",
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "completed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Task": {
+        "required": [
+          "completed",
+          "createdAt",
+          "id",
+          "title",
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "completed": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateHoldingRequest": {
+        "required": [
+          "change",
+          "cls",
+          "currency",
+          "name",
+          "platform",
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "cls": {
+            "type": "string",
+            "enum": [
+              "Cash",
+              "Fixed Income",
+              "Index Fund",
+              "Equity",
+              "Crypto"
+            ]
+          },
+          "platform": {
+            "type": "string"
+          },
+          "qty": {
+            "type": "number",
+            "format": "double"
+          },
+          "value": {
+            "minimum": 0.0,
+            "exclusiveMinimum": false,
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "USD",
+              "ARS",
+              "BTC",
+              "ETH",
+              "USDT"
+            ]
+          },
+          "change": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "UpdateTaskRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "completed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AssetClassBreakdown": {
+        "required": [
+          "cls",
+          "count",
+          "percentage",
+          "totalValueUSD"
+        ],
+        "type": "object",
+        "properties": {
+          "cls": {
+            "type": "string",
+            "enum": [
+              "Cash",
+              "Fixed Income",
+              "Index Fund",
+              "Equity",
+              "Crypto"
+            ]
+          },
+          "totalValueUSD": {
+            "type": "number",
+            "format": "double"
+          },
+          "percentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PlatformBreakdown": {
+        "required": [
+          "count",
+          "percentage",
+          "platform",
+          "totalValueUSD"
+        ],
+        "type": "object",
+        "properties": {
+          "platform": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "Broker",
+              "Wallet",
+              "Bank",
+              "Exchange"
+            ]
+          },
+          "totalValueUSD": {
+            "type": "number",
+            "format": "double"
+          },
+          "percentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WealthSummaryResponse": {
+        "required": [
+          "average24hChangePct",
+          "byAssetClass",
+          "byPlatform",
+          "fxRateUSDARS",
+          "totalHoldingsCount",
+          "totalNetWorthARS",
+          "totalNetWorthUSD"
+        ],
+        "type": "object",
+        "properties": {
+          "totalNetWorthUSD": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalNetWorthARS": {
+            "type": "number",
+            "format": "double"
+          },
+          "fxRateUSDARS": {
+            "type": "number",
+            "format": "double"
+          },
+          "average24hChangePct": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalHoldingsCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "byAssetClass": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssetClassBreakdown"
+            }
+          },
+          "byPlatform": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlatformBreakdown"
+            }
+          }
+        }
+      },
+      "HistorySnapshot": {
+        "required": [
+          "m",
+          "v"
+        ],
+        "type": "object",
+        "properties": {
+          "m": {
+            "type": "string"
+          },
+          "v": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "PlatformMeta": {
+        "required": [
+          "name",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "Broker",
+              "Wallet",
+              "Bank",
+              "Exchange"
+            ]
+          }
+        }
+      },
+      "HealthStatusResponse": {
+        "required": [
+          "environment",
+          "service",
+          "status",
+          "timestamp",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "service": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "environment": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

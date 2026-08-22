@@ -1,0 +1,37 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: base-wealth-backend
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      indent-output: true
+    default-property-inclusion: non_null
+
+# Springdoc OpenAPI Swagger UI Configuration
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+
+# Application-specific properties
+wealth:
+  default-fx-usd-ars: 1050.0
+  cors:
+    allowed-origins:
+      - "http://localhost:3000"
+      - "http://127.0.0.1:3000"
+      - "https://*.vercel.app"
+
+logging:
+  level:
+    root: INFO
+    com.base.wealth: DEBUG
+    org.springframework.web: INFO
