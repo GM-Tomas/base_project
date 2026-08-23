@@ -74,6 +74,20 @@ escribe a mano (así nunca queda desactualizada):
 
 ---
 
+## 💾 Persistencia (KVS)
+
+`HoldingRepository`/`TaskRepository` están respaldados por un `KvStore` genérico
+(`key TEXT` → `value JSONB`), con dos implementaciones intercambiables por perfil de Spring:
+
+- **Perfil por defecto (local/dev/test)**: `FileKvStore`, un único archivo JSON en
+  `backend/data/kvstore.json` (configurable con `wealth.kv.file`). No requiere nada instalado.
+- **Perfil `prod`**: `PostgresKvStore`, contra la tabla `kv_store` del Postgres de Supabase
+  (ver [`supabase/schema.sql`](../supabase/schema.sql)). Requiere las variables de entorno
+  `SUPABASE_DB_URL`, `SUPABASE_DB_USER`, `SUPABASE_DB_PASSWORD` y `FRONTEND_ORIGIN`.
+
+Para correr localmente contra Postgres real en vez del archivo, exportá esas mismas variables
+y arrancá con `SPRING_PROFILES_ACTIVE=prod`.
+
 ## 🔗 Integración con el Frontend Next.js
 
 El backend tiene configurado CORS para permitir peticiones directas desde `http://localhost:3000`.

@@ -35,3 +35,23 @@ logging:
     root: INFO
     com.base.wealth: DEBUG
     org.springframework.web: INFO
+
+---
+# Prod: KVS-in-Supabase, wired via DataSourceConfig (see BaseWealthApplication for why
+# auto-config is off). Point SUPABASE_DB_URL at the Session Pooler host, not the direct
+# db.<ref>.supabase.co host — most PaaS runners are IPv4-only and the direct host is IPv6-only.
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${SUPABASE_DB_URL}
+    username: ${SUPABASE_DB_USER}
+    password: ${SUPABASE_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 5
+
+wealth:
+  cors:
+    allowed-origins:
+      - ${FRONTEND_ORIGIN}

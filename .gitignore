@@ -26,6 +26,7 @@ backend/build/
 backend/out/
 backend/bin/
 backend/.kotlin/
+backend/data/
 .gradle/
 build/
 out/

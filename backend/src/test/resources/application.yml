@@ -1,0 +1,5 @@
+# Fresh KVS file per test-suite run (shared Spring context across @SpringBootTest classes),
+# so mutating tests (e.g. DELETE) never see state left over from a previous `gradlew test` run.
+wealth:
+  kv:
+    file: build/test-kv/${random.uuid}.json
