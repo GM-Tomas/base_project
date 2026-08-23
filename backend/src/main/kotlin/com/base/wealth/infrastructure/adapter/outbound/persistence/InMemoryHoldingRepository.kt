@@ -15,16 +15,16 @@ class InMemoryHoldingRepository : HoldingRepository {
     init {
         // Datos semilla alineados con el frontend BASE Wealth
         val initialData = listOf(
-            Holding(1L, "Cuenta remunerada ARS", "Cash", "Mercado Pago", null, 6150.0),
-            Holding(2L, "Plazo fijo UVA 90d", "Fixed Income", "Banco Galicia", null, 11300.0),
-            Holding(3L, "AL30D Bonar 2030", "Fixed Income", "Balanz", null, 9100.0),
-            Holding(4L, "S&P 500 Index Fund", "Index Fund", "Balanz", 42.0, 5100.0),
-            Holding(5L, "AAPL", "Equity", "Balanz", 34.0, 7643.0),
-            Holding(6L, "NVDA", "Equity", "Balanz", 8.0, 10557.0),
-            Holding(7L, "Bitcoin", "Crypto", "Nexo", 0.098, 9200.0),
-            Holding(8L, "Ethereum", "Crypto", "Nexo", 1.62, 5580.0),
-            Holding(9L, "Bitcoin", "Crypto", "Binance", 0.145, 13616.0),
-            Holding(10L, "USDT (stable)", "Cash", "Binance", 6004.0, 6004.0)
+            Holding(1L, "Cuenta remunerada ARS", "Cash", "Mercado Pago", 6150.0),
+            Holding(2L, "Plazo fijo UVA 90d", "Fixed Income", "Banco Galicia", 11300.0),
+            Holding(3L, "AL30D Bonar 2030", "Fixed Income", "Balanz", 9100.0),
+            Holding(4L, "S&P 500 Index Fund", "Index Fund", "Balanz", 5100.0),
+            Holding(5L, "AAPL", "Equity", "Balanz", 7643.0),
+            Holding(6L, "NVDA", "Equity", "Balanz", 10557.0),
+            Holding(7L, "Bitcoin", "Crypto", "Nexo", 9200.0),
+            Holding(8L, "Ethereum", "Crypto", "Nexo", 5580.0),
+            Holding(9L, "Bitcoin", "Crypto", "Binance", 13616.0),
+            Holding(10L, "USDT (stable)", "Cash", "Binance", 6004.0)
         )
         initialData.forEach { holdingsMap[it.id] = it }
     }

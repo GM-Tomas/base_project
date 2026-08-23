@@ -51,7 +51,6 @@ class HoldingControllerTest {
             name = "Solana",
             cls = "Crypto",
             platform = "Binance",
-            qty = 15.0,
             value = 2250.0
         )
 

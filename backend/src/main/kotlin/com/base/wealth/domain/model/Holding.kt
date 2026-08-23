@@ -5,6 +5,5 @@ data class Holding(
     val name: String,
     val cls: AssetClass,
     val platform: String,
-    val qty: Double? = null,
     val value: Double // Almacenado en USD
 )

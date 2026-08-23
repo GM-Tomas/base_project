@@ -15,8 +15,6 @@ data class CreateHoldingRequest(
     @field:NotBlank(message = "La plataforma es obligatoria")
     val platform: String,
 
-    val qty: Double? = null,
-
     @field:NotNull(message = "El valor es obligatorio")
     @field:DecimalMin(value = "0.0", inclusive = true, message = "El valor no puede ser negativo")
     val value: Double
@@ -26,6 +24,5 @@ data class UpdateHoldingRequest(
     val name: String? = null,
     val cls: AssetClass? = null,
     val platform: String? = null,
-    val qty: Double? = null,
     val value: Double? = null
 )

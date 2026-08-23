@@ -485,10 +485,6 @@
           "platform": {
             "type": "string"
           },
-          "qty": {
-            "type": "number",
-            "format": "double"
-          },
           "value": {
             "type": "number",
             "format": "double"
@@ -517,10 +513,6 @@
           },
           "platform": {
             "type": "string"
-          },
-          "qty": {
-            "type": "number",
-            "format": "double"
           },
           "value": {
             "type": "number",
@@ -733,10 +725,6 @@
           },
           "platform": {
             "type": "string"
-          },
-          "qty": {
-            "type": "number",
-            "format": "double"
           },
           "value": {
             "minimum": 0.0,
