@@ -9,14 +9,17 @@
 ## Quick Start
 
 ### 1. Backend (Kotlin / Spring Boot)
-> Requiere Java JDK 17 o 21 instalado.
+> Requiere Java JDK 21 y Docker corriendo (levanta Postgres automáticamente, ver
+> [`backend/README.md`](backend/README.md#-persistencia-postgres--flyway)).
 
 ```bash
 cd backend
 ./gradlew.bat bootRun    # En Windows
 # ./gradlew bootRun      # En Linux/macOS
 ```
-Swagger UI disponible en: `http://localhost:8080/swagger-ui.html`
+Swagger UI disponible en: `http://localhost:8080/swagger-ui.html`. Todo endpoint salvo
+`/api/v1/health` exige un JWT de Supabase Auth — ver
+[`backend/README.md`](backend/README.md#-autenticación).
 
 ### 2. Frontend (Next.js)
 ```bash
@@ -41,4 +44,8 @@ git config core.hooksPath .githooks
 ```
 Sin este paso el hook no corre y `openapi.json` puede quedar desactualizado; regenéralo a mano
 con `cd backend && ./gradlew generateOpenApiDocs` si hace falta.
+
+El **contrato de diseño** (fuente de verdad, escrito a mano antes que el código) vive en
+[`specs/001-backend-para-frontend/contracts/openapi.yaml`](specs/001-backend-para-frontend/contracts/openapi.yaml).
+CI compara ambos en cada push (`./gradlew contractDriftCheck`) y falla si divergen.
 

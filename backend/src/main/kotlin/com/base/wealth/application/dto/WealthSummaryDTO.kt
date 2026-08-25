@@ -1,28 +1,53 @@
 package com.base.wealth.application.dto
 
-import com.base.wealth.domain.model.AssetClass
-import com.base.wealth.domain.model.PlatformType
+import java.time.Instant
+
+data class FxRateDTO(
+    val available: Boolean,
+    val value: Double? = null,
+    val asOf: Instant? = null,
+    val source: String? = null,
+)
+
+data class NetWorthDTO(
+    val usd: Double,
+    val ars: Double?,
+    val fxRate: FxRateDTO,
+)
+
+data class YtdDTO(
+    val basis: String,
+    val growthPct: Double,
+    val baselineValueUsd: Double? = null,
+    val baselineAt: Instant? = null,
+)
+
+data class LiquidityDTO(
+    val liquidPct: Double,
+    val illiquidPct: Double,
+    val liquidAssetClasses: List<String>,
+)
 
 data class AssetClassBreakdown(
-    val cls: AssetClass,
-    val totalValueUSD: Double,
-    val percentage: Double,
-    val count: Int
+    val assetClass: String,
+    val valueUsd: Double,
+    val pct: Double,
+    val count: Int,
 )
 
 data class PlatformBreakdown(
-    val platform: String,
-    val type: PlatformType?,
-    val totalValueUSD: Double,
-    val percentage: Double,
-    val count: Int
+    val name: String,
+    val type: String,
+    val valueUsd: Double,
+    val pct: Double,
+    val count: Int,
 )
 
 data class WealthSummaryResponse(
-    val totalNetWorthUSD: Double,
-    val totalNetWorthARS: Double,
-    val fxRateUSDARS: Double,
-    val totalHoldingsCount: Int,
+    val netWorth: NetWorthDTO,
+    val holdingsCount: Int,
+    val ytd: YtdDTO,
+    val liquidity: LiquidityDTO,
     val byAssetClass: List<AssetClassBreakdown>,
-    val byPlatform: List<PlatformBreakdown>
+    val byPlatform: List<PlatformBreakdown>,
 )

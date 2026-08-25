@@ -11,6 +11,16 @@ spring:
       write-dates-as-timestamps: false
       indent-output: true
     default-property-inclusion: non_null
+  # Off by default: the no-active-profile context (plain @WebMvcTest/@SpringBootTest slices with
+  # mocked services) needs no database at all. Cleared per-profile below once that profile
+  # actually has one to offer (see BaseWealthApplication for why this lives here, not on the app class).
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration
+  flyway:
+    locations: classpath:db/migration
 
 # Springdoc OpenAPI Swagger UI Configuration
 springdoc:
@@ -21,7 +31,9 @@ springdoc:
     operationsSorter: method
     tagsSorter: alpha
 
-# Application-specific properties
+# Application-specific properties (see infrastructure.config.WealthProperties)
+# SUPABASE_URL defaults to the project's own Supabase instance (public info — it's already
+# embedded client-side as NEXT_PUBLIC_SUPABASE_URL) so `bootRun`/tests work with no local .env.
 wealth:
   default-fx-usd-ars: 1050.0
   cors:
@@ -29,6 +41,10 @@ wealth:
       - "http://localhost:3000"
       - "http://127.0.0.1:3000"
       - "https://*.vercel.app"
+  auth:
+    jwk-set-uri: ${SUPABASE_URL:https://vffsdgqqyqcbmkehnpxx.supabase.co}/auth/v1/.well-known/jwks.json
+    issuer: ${SUPABASE_URL:https://vffsdgqqyqcbmkehnpxx.supabase.co}/auth/v1
+    audience: authenticated
 
 logging:
   level:
@@ -37,13 +53,47 @@ logging:
     org.springframework.web: INFO
 
 ---
-# Prod: KVS-in-Supabase, wired via DataSourceConfig (see BaseWealthApplication for why
-# auto-config is off). Point SUPABASE_DB_URL at the Session Pooler host, not the direct
-# db.<ref>.supabase.co host — most PaaS runners are IPv4-only and the direct host is IPv6-only.
+# Dev: Postgres via backend/compose.yaml, auto-started by spring-boot-docker-compose
+# (developmentOnly dependency) — connection details are derived from the running
+# container, no spring.datasource.* needed here. Active by default for `bootRun`
+# (see the bootRun task in build.gradle.kts); `./gradlew test` never activates this.
+spring:
+  config:
+    activate:
+      on-profile: dev
+  autoconfigure:
+    exclude: ""
+
+---
+# Test: Postgres via Testcontainers (see support/PostgresTestBase), for integration tests
+# that need a real database. Opt in per test class with @ActiveProfiles("test"); plain
+# @WebMvcTest slices with no active profile and a mocked service layer are unaffected.
+spring:
+  config:
+    activate:
+      on-profile: test
+  autoconfigure:
+    exclude: ""
+  flyway:
+    # testcontainers-init.sql pre-creates auth.users/public.tasks (real in Supabase, outside
+    # Flyway there too) before Flyway ever runs — baseline instead of erroring on a non-empty
+    # "public" schema with no history table yet.
+    baseline-on-migrate: true
+
+---
+# Prod: the real Supabase Postgres, DataSource wired manually (infrastructure.config.DataSourceConfig
+# — see BaseWealthApplication for why auto-config is off by default). Point SUPABASE_DB_URL at the
+# Session Pooler host, not the direct db.<ref>.supabase.co host — most PaaS runners are IPv4-only
+# and the direct host is IPv6-only. autoconfigure.exclude is still cleared here even though the
+# DataSource/JdbcTemplate beans are manual: Boot's own autoconfig backs off when a bean already
+# exists, but DataSourceTransactionManagerAutoConfiguration needs to run to give @Transactional
+# something to bind to (DataSourceConfig doesn't provide a PlatformTransactionManager itself).
 spring:
   config:
     activate:
       on-profile: prod
+  autoconfigure:
+    exclude: ""
   datasource:
     url: ${SUPABASE_DB_URL}
     username: ${SUPABASE_DB_USER}

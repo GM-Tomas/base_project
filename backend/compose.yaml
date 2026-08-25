@@ -1,0 +1,22 @@
+# Auto-detected by spring-boot-docker-compose when running `./gradlew bootRun` (dev profile).
+# Not used by `./gradlew test` — integration tests get their own container via Testcontainers
+# (see src/test/kotlin/com/base/wealth/support/PostgresTestBase.kt).
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: base_wealth
+      POSTGRES_USER: base_wealth
+      POSTGRES_PASSWORD: base_wealth
+    ports:
+      - "5432:5432"
+    volumes:
+      - base_wealth_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U base_wealth -d base_wealth"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  base_wealth_pgdata:

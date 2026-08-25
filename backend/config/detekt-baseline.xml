@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>MagicNumber:WebConfig.kt$WebConfig$3600</ID>
+    <ID>MaxLineLength:OpenApiConfig.kt$OpenApiConfig$"REST API construida con Kotlin y Spring Boot 3 para gestión de activos patrimoniales, proyecciones financieras y tareas."</ID>
+    <ID>SpreadOperator:BaseWealthApplication.kt$(*args)</ID>
+    <ID>SpreadOperator:WebConfig.kt$WebConfig$(*wealthProperties.cors.allowedOrigins.toTypedArray())</ID>
+  </CurrentIssues>
+</SmellBaseline>

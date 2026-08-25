@@ -1,74 +1,123 @@
 package com.base.wealth.application.service
 
 import com.base.wealth.application.dto.AssetClassBreakdown
-import com.base.wealth.application.dto.EstimateRequest
-import com.base.wealth.application.dto.EstimateResponse
+import com.base.wealth.application.dto.FxRateDTO
+import com.base.wealth.application.dto.LiquidityDTO
+import com.base.wealth.application.dto.NetWorthDTO
 import com.base.wealth.application.dto.PlatformBreakdown
 import com.base.wealth.application.dto.WealthSummaryResponse
-import com.base.wealth.domain.model.HistorySnapshot
-import com.base.wealth.domain.port.inbound.HistoryUseCase
-import com.base.wealth.domain.port.inbound.HoldingUseCase
-import com.base.wealth.domain.port.inbound.PlatformUseCase
+import com.base.wealth.application.dto.YtdDTO
+import com.base.wealth.domain.model.AssetClass
+import com.base.wealth.domain.model.FxRate
+import com.base.wealth.domain.model.Money
+import com.base.wealth.domain.model.UserId
+import com.base.wealth.domain.model.YtdGrowth
 import com.base.wealth.domain.port.inbound.WealthUseCase
+import com.base.wealth.domain.port.outbound.AssetClassAggregate
+import com.base.wealth.domain.port.outbound.ClockPort
+import com.base.wealth.domain.port.outbound.FxRatePort
+import com.base.wealth.domain.port.outbound.PlatformAggregate
+import com.base.wealth.domain.port.outbound.SnapshotRepository
+import com.base.wealth.domain.port.outbound.WealthAggregationPort
+import com.base.wealth.domain.service.LiquidityPolicy
+import com.base.wealth.domain.service.YtdGrowthCalculator
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import kotlin.math.roundToLong
+import java.math.BigDecimal
+import java.time.ZoneOffset
 
+private val ZERO_PCT: BigDecimal = BigDecimal.ZERO.setScale(1)
+
+// ponytail: liquidAssetClasses stays on @Value, not WealthProperties (infrastructure/config) —
+// this service is `application`, and depending on an infrastructure class here is the same layer
+// leak specs/001-backend-para-frontend/plan.md §8.2 checks for (see application/service/AssetClassService.kt).
 @Service
 class WealthQueryService(
-    private val holdingUseCase: HoldingUseCase,
-    private val platformUseCase: PlatformUseCase,
-    private val historyUseCase: HistoryUseCase,
-    private val calculationService: WealthCalculationService,
-    @Value("\${wealth.default-fx-usd-ars:1050.0}") private val fxRateUSDARS: Double
+    private val wealthAggregationPort: WealthAggregationPort,
+    private val snapshotRepository: SnapshotRepository,
+    private val fxRatePort: FxRatePort,
+    private val clock: ClockPort,
+    @Value("\${wealth.liquid-asset-classes:Cash,Equity,Crypto,Index Fund}")
+    private val liquidAssetClasses: List<String>,
 ) : WealthUseCase {
+    override fun getSummary(userId: UserId): WealthSummaryResponse {
+        val netWorth = wealthAggregationPort.netWorth(userId)
+        val byClass = wealthAggregationPort.byAssetClass(userId)
+        val byPlatform = wealthAggregationPort.byPlatform(userId)
+        val year = clock.now().atZone(ZoneOffset.UTC).year
 
-    override fun getSummary(): WealthSummaryResponse {
-        val holdings = holdingUseCase.getAllHoldings()
-        val platforms = platformUseCase.getAllPlatforms().associateBy { it.name }
-
-        val totalUSD = holdings.sumOf { it.value }
-        val totalARS = totalUSD * fxRateUSDARS
-
-        // Distribución por clase de activo
-        val byClass = holdings.groupBy { it.cls }.map { (cls, list) ->
-            val classVal = list.sumOf { it.value }
-            val pct = if (totalUSD > 0) (classVal / totalUSD) * 100.0 else 0.0
-            AssetClassBreakdown(
-                cls = cls,
-                totalValueUSD = (classVal * 100.0).roundToLong() / 100.0,
-                percentage = (pct * 10.0).roundToLong() / 10.0,
-                count = list.size
+        val ytd =
+            YtdGrowthCalculator.calculate(
+                netWorth,
+                snapshotRepository.findFirstOfYear(userId, year),
+                snapshotRepository.findEarliest(userId),
             )
-        }.sortedByDescending { it.totalValueUSD }
-
-        // Distribución por plataforma
-        val byPlatform = holdings.groupBy { it.platform }.map { (platName, list) ->
-            val platVal = list.sumOf { it.value }
-            val pct = if (totalUSD > 0) (platVal / totalUSD) * 100.0 else 0.0
-            PlatformBreakdown(
-                platform = platName,
-                type = platforms[platName]?.type,
-                totalValueUSD = (platVal * 100.0).roundToLong() / 100.0,
-                percentage = (pct * 10.0).roundToLong() / 10.0,
-                count = list.size
-            )
-        }.sortedByDescending { it.totalValueUSD }
+        val liquidity =
+            LiquidityPolicy(liquidAssetClasses.map(AssetClass::of).toSet())
+                .breakdown(byClass.associate { it.assetClass to it.value })
 
         return WealthSummaryResponse(
-            totalNetWorthUSD = (totalUSD * 100.0).roundToLong() / 100.0,
-            totalNetWorthARS = (totalARS * 100.0).roundToLong() / 100.0,
-            fxRateUSDARS = fxRateUSDARS,
-            totalHoldingsCount = holdings.size,
-            byAssetClass = byClass,
-            byPlatform = byPlatform
+            netWorth = netWorth.toDto(fxRatePort.current()),
+            holdingsCount = byClass.sumOf { it.count },
+            ytd = ytd.toDto(),
+            liquidity =
+                LiquidityDTO(
+                    liquidity.liquidPct.toDouble(),
+                    liquidity.illiquidPct.toDouble(),
+                    liquidAssetClasses,
+                ),
+            byAssetClass = byClass.map { it.toDto(netWorth) },
+            byPlatform = byPlatform.map { it.toDto(netWorth) },
         )
     }
 
-    override fun calculateEstimate(request: EstimateRequest): EstimateResponse {
-        val currentNetWorth = holdingUseCase.getTotalNetWorthUSD()
-        return calculationService.generateEstimate(request, currentNetWorth)
-    }
+    // ponytail: FxRate has exactly one adapter today (FixedFxRateAdapter, D4) — "FIXED_CONFIG" is
+    // hardcoded here rather than modeled as a field on FxRate itself; add source to the domain
+    // type when a second adapter (e.g. a live-rate API) actually exists.
+    private fun Money.toDto(fxRate: FxRate): NetWorthDTO =
+        when (fxRate) {
+            is FxRate.Known ->
+                NetWorthDTO(
+                    usd = amount.toDouble(),
+                    ars = (this * fxRate.rate).amount.toDouble(),
+                    fxRate =
+                        FxRateDTO(
+                            available = true,
+                            value = fxRate.rate.toDouble(),
+                            asOf = fxRate.asOf,
+                            source = "FIXED_CONFIG",
+                        ),
+                )
+            FxRate.Unavailable ->
+                NetWorthDTO(usd = amount.toDouble(), ars = null, fxRate = FxRateDTO(available = false))
+        }
 
-    override fun getHistory(): List<HistorySnapshot> = historyUseCase.getHistorySnapshots()
+    private fun YtdGrowth.toDto(): YtdDTO =
+        when (this) {
+            is YtdGrowth.From ->
+                YtdDTO(
+                    basis = basis.name,
+                    growthPct = growthPct.toDouble(),
+                    baselineValueUsd = baselineValue.amount.toDouble(),
+                    baselineAt = baselineAt,
+                )
+            YtdGrowth.NoBaseline -> YtdDTO(basis = "NO_BASELINE", growthPct = 0.0)
+        }
+
+    private fun AssetClassAggregate.toDto(total: Money) =
+        AssetClassBreakdown(
+            assetClass = assetClass.value,
+            valueUsd = value.amount.toDouble(),
+            pct = (value.percentOf(total) ?: ZERO_PCT).toDouble(),
+            count = count,
+        )
+
+    private fun PlatformAggregate.toDto(total: Money) =
+        PlatformBreakdown(
+            name = name.value,
+            type = type.value,
+            valueUsd = value.amount.toDouble(),
+            pct = (value.percentOf(total) ?: ZERO_PCT).toDouble(),
+            count = count,
+        )
 }

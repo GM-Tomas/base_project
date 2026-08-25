@@ -8,7 +8,7 @@ data class Task(
     val userId: UUID,
     val title: String,
     val completed: Boolean = false,
-    val createdAt: Instant = Instant.now()
+    val createdAt: Instant = Instant.now(),
 )
 
 data class Profile(
@@ -16,5 +16,5 @@ data class Profile(
     val username: String,
     val fullName: String?,
     val avatarUrl: String?,
-    val updatedAt: Instant? = null
+    val updatedAt: Instant? = null,
 )

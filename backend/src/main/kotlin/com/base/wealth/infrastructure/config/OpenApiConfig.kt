@@ -9,25 +9,23 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class OpenApiConfig {
-
     @Bean
-    fun customOpenAPI(): OpenAPI {
-        return OpenAPI()
+    fun customOpenAPI(): OpenAPI =
+        OpenAPI()
             .info(
                 Info()
                     .title("BASE Wealth Management & Tasks API")
                     .version("1.0.0")
-                    .description("REST API construida con Kotlin y Spring Boot 3 para gestión de activos patrimoniales, proyecciones financieras y tareas.")
-                    .contact(
+                    .description(
+                        "REST API construida con Kotlin y Spring Boot 3 para gestión de activos patrimoniales, proyecciones financieras y tareas.",
+                    ).contact(
                         Contact()
                             .name("BASE Engineering Team")
-                            .email("dev@base-wealth.internal")
-                    )
-                    .license(
+                            .email("dev@base-wealth.internal"),
+                    ).license(
                         License()
                             .name("Apache 2.0")
-                            .url("https://www.apache.org/licenses/LICENSE-2.0")
-                    )
+                            .url("https://www.apache.org/licenses/LICENSE-2.0"),
+                    ),
             )
-    }
 }

@@ -1,21 +1,17 @@
 package com.base.wealth
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
-import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.runApplication
 
-// DataSource/JdbcTemplate are wired manually (see infrastructure.config.DataSourceConfig) and only
-// under the "prod" profile — local/dev runs against FileKvStore with no database configured at all,
-// so the default auto-config (which demands a datasource url) must stay off.
-@SpringBootApplication(
-    exclude = [
-        DataSourceAutoConfiguration::class,
-        DataSourceTransactionManagerAutoConfiguration::class,
-        JdbcTemplateAutoConfiguration::class
-    ]
-)
+// Datasource auto-configuration is excluded by default (see application.yml's base
+// `spring.autoconfigure.exclude`) and re-enabled per profile: "dev" picks it up from
+// compose.yaml via spring-boot-docker-compose, "test" from Testcontainers (see
+// support/PostgresTestBase), and "prod" wires its own DataSource bean manually
+// (infrastructure.config.DataSourceConfig) regardless of the exclusion. Profile-scoped
+// YAML can flip this per-profile; a static `exclude = [...]` on this annotation can't.
+@SpringBootApplication
+@ConfigurationPropertiesScan
 class BaseWealthApplication
 
 fun main(args: Array<String>) {

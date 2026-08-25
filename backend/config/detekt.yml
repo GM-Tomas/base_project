@@ -1,0 +1,34 @@
+# Overrides on top of detekt's own default ruleset (buildUponDefaultConfig = true in build.gradle.kts).
+# Only rules where this project's thresholds differ from detekt's defaults are listed here.
+
+build:
+  maxIssues: 0
+
+complexity:
+  CyclomaticComplexMethod:
+    threshold: 10
+  LongMethod:
+    threshold: 40
+  LongParameterList:
+    functionThreshold: 7
+    constructorThreshold: 8
+  TooManyFunctions:
+    thresholdInFiles: 20
+    thresholdInClasses: 20
+
+style:
+  MaxLineLength:
+    maxLineLength: 120
+  ForbiddenMethodCall:
+    active: true
+    methods:
+      - reason: 'Use a logger instead of println/print'
+        value: 'kotlin.io.print,kotlin.io.println'
+  WildcardImport:
+    active: true
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: true
+  SwallowedException:
+    active: true

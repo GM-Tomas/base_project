@@ -1,14 +1,29 @@
 package com.base.wealth.domain.port.inbound
 
-import com.base.wealth.application.dto.CreateHoldingRequest
-import com.base.wealth.application.dto.UpdateHoldingRequest
+import com.base.wealth.domain.model.AssetClass
 import com.base.wealth.domain.model.Holding
+import com.base.wealth.domain.model.HoldingId
+import com.base.wealth.domain.model.PlatformName
+import com.base.wealth.domain.model.UserId
 
 interface HoldingUseCase {
-    fun getAllHoldings(): List<Holding>
-    fun getHoldingById(id: Long): Holding
-    fun createHolding(request: CreateHoldingRequest): Holding
-    fun updateHolding(id: Long, request: UpdateHoldingRequest): Holding
-    fun deleteHolding(id: Long)
-    fun getTotalNetWorthUSD(): Double
+    fun getAllHoldings(
+        userId: UserId,
+        assetClass: AssetClass? = null,
+        platform: PlatformName? = null,
+    ): List<Holding>
+
+    fun getHoldingById(
+        userId: UserId,
+        id: HoldingId,
+    ): Holding
+
+    fun createHolding(command: CreateHoldingCommand): Holding
+
+    fun updateHolding(command: PatchHoldingCommand): Holding
+
+    fun deleteHolding(
+        userId: UserId,
+        id: HoldingId,
+    )
 }

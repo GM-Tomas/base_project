@@ -18,7 +18,6 @@ import javax.sql.DataSource
 @Profile("prod")
 @EnableConfigurationProperties(DataSourceProperties::class)
 class DataSourceConfig {
-
     @Bean
     @ConfigurationProperties("spring.datasource.hikari")
     fun dataSource(properties: DataSourceProperties): DataSource =

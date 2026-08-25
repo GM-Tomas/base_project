@@ -6,7 +6,12 @@ API REST moderna, reactiva y testeable construida con **Kotlin 1.9+**, **Spring 
 
 ## 📋 Requisitos Previos
 
-Para compilar, ejecutar y ejecutar los tests necesitas tener instalado **Java JDK (versión 17 o 21)**.
+Para compilar, ejecutar y ejecutar los tests necesitas tener instalado **Java JDK 21** (la toolchain
+del proyecto lo exige exactamente, ver `build.gradle.kts`).
+
+El perfil `dev` (el que usa `bootRun`) además necesita **Docker** corriendo: levanta Postgres
+automáticamente vía `backend/compose.yaml` (plugin `spring-boot-docker-compose`), no hay que
+arrancarlo a mano.
 
 ### 📥 Instalación del JDK en Windows:
 1. **Eclipse Temurin OpenJDK 21** (Recomendado):
@@ -74,26 +79,54 @@ escribe a mano (así nunca queda desactualizada):
 
 ---
 
-## 💾 Persistencia (KVS)
+## 🔐 Autenticación
 
-`HoldingRepository`/`TaskRepository` están respaldados por un `KvStore` genérico
-(`key TEXT` → `value JSONB`), con dos implementaciones intercambiables por perfil de Spring:
+Todo endpoint bajo `/api/v1/**` excepto `/api/v1/health` exige un JWT de Supabase Auth:
 
-- **Perfil por defecto (local/dev/test)**: `FileKvStore`, un único archivo JSON en
-  `backend/data/kvstore.json` (configurable con `wealth.kv.file`). No requiere nada instalado.
-- **Perfil `prod`**: `PostgresKvStore`, contra la tabla `kv_store` del Postgres de Supabase
-  (ver [`supabase/schema.sql`](../supabase/schema.sql)). Requiere las variables de entorno
-  `SUPABASE_DB_URL`, `SUPABASE_DB_USER`, `SUPABASE_DB_PASSWORD` y `FRONTEND_ORIGIN`.
+```
+Authorization: Bearer <session.access_token>
+```
 
-Para correr localmente contra Postgres real en vez del archivo, exportá esas mismas variables
-y arrancá con `SPRING_PROFILES_ACTIVE=prod`.
+El token se valida contra el JWKS del proyecto de Supabase (`SUPABASE_URL`, que ya trae un
+default público apuntando al proyecto propio — ver `application.yml`); sin token, con firma
+inválida, expirado o con `iss`/`aud` incorrectos, la respuesta es `401` en `application/problem+json`.
+La identidad del usuario (`sub` del JWT) es la única fuente del `userId` — ningún endpoint lo
+acepta en body, path ni query (ver `specs/001-backend-para-frontend/spec.md` CA-01.5).
+
+## 💾 Persistencia (Postgres + Flyway)
+
+El esquema vive versionado en [`src/main/resources/db/migration`](src/main/resources/db/migration)
+(Flyway) y todos los repositorios (`Jdbc*Repository`) hablan `JdbcClient` contra Postgres —
+no hay almacenamiento en archivo ni en memoria. Según el perfil de Spring:
+
+- **`dev`** (default de `bootRun`): Postgres real vía `backend/compose.yaml`, auto-levantado por
+  `spring-boot-docker-compose` (requiere Docker; ver arriba). Flyway migra el esquema al arrancar.
+- **`test`** (`./gradlew test`): Postgres real vía Testcontainers, un container efímero por
+  suite (ver `src/test/kotlin/com/base/wealth/support/PostgresTestBase.kt`). Los `@WebMvcTest`
+  con servicios mockeados no activan este perfil y no tocan ninguna base.
+- **`prod`**: el Postgres real de Supabase, con el `DataSource`/`HikariCP` armados a mano en
+  `infrastructure/config/DataSourceConfig.kt`. Requiere las variables de entorno
+  `SUPABASE_DB_URL` (el host del *Session Pooler*, no `db.<ref>.supabase.co` — la mayoría de los
+  PaaS son IPv4-only y ese host es IPv6-only), `SUPABASE_DB_USER`, `SUPABASE_DB_PASSWORD` y
+  `FRONTEND_ORIGIN` (CORS).
+
+Para correr localmente contra el Postgres de Supabase en vez del de `compose.yaml`, exportá esas
+variables y arrancá con `SPRING_PROFILES_ACTIVE=prod`.
+
+Un usuario nuevo arranca sin holdings ni plataformas — no hay semillas en las migraciones. Para
+tener datos de ejemplo en dev, corré [`scripts/seed-dev.sql`](scripts/seed-dev.sql) a mano (ver el
+comentario del archivo).
 
 ## 🔗 Integración con el Frontend Next.js
 
 El backend tiene configurado CORS para permitir peticiones directas desde `http://localhost:3000`.
 
-En tu frontend Next.js, puedes consumir los endpoints directamente:
+En tu frontend Next.js, consumí los endpoints con el token de la sesión de Supabase
+(ver [`frontend/src/lib/api.ts`](../frontend/src/lib/api.ts), que ya envuelve esto):
 ```typescript
-const response = await fetch('http://localhost:8080/api/v1/wealth/summary');
+const { data: { session } } = await supabase.auth.getSession();
+const response = await fetch('http://localhost:8080/api/v1/wealth/summary', {
+  headers: { Authorization: `Bearer ${session?.access_token}` },
+});
 const summary = await response.json();
 ```

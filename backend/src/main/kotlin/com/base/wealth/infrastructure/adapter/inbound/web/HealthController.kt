@@ -13,24 +13,24 @@ data class HealthStatusResponse(
     val service: String,
     val timestamp: Instant,
     val environment: String,
-    val version: String
+    val version: String,
 )
 
 @RestController
 @RequestMapping("/api/v1/health")
 @Tag(name = "Health", description = "Monitoreo del estado y disponibilidad de la API")
 class HealthController {
-
     @GetMapping
     @Operation(summary = "Verifica el estado operativo del servicio backend")
     fun checkHealth(): ResponseEntity<HealthStatusResponse> {
-        val response = HealthStatusResponse(
-            status = "UP",
-            service = "base-wealth-backend",
-            timestamp = Instant.now(),
-            environment = "production-ready",
-            version = "1.0.0"
-        )
+        val response =
+            HealthStatusResponse(
+                status = "UP",
+                service = "base-wealth-backend",
+                timestamp = Instant.now(),
+                environment = "production-ready",
+                version = "1.0.0",
+            )
         return ResponseEntity.ok(response)
     }
 }

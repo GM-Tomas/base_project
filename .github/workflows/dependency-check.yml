@@ -1,0 +1,32 @@
+name: OWASP Dependency Check
+
+on:
+  schedule:
+    # Mondays 06:00 UTC — dependency vulnerability data changes daily, not per-commit; a push-time
+    # scan would just re-check the same dependency set repeatedly (plan.md §8.1: "Job semanal en CI").
+    - cron: "0 6 * * 1"
+  workflow_dispatch: {}
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dependency-Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: base-wealth-backend
+          path: backend
+          format: HTML
+          args: >
+            --failOnCVSS 7
+            --enableExperimental
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-report
+          path: ${{ github.workspace }}/reports
+          retention-days: 30
