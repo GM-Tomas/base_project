@@ -1,9 +1,9 @@
 FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
-COPY gradlew build.gradle.kts settings.gradle.kts gradle.properties ./
-COPY gradle ./gradle
+COPY backend/gradlew backend/build.gradle.kts backend/settings.gradle.kts backend/gradle.properties ./
+COPY backend/gradle ./gradle
 RUN ./gradlew --no-daemon dependencies || true
-COPY src ./src
+COPY backend/src ./src
 RUN ./gradlew --no-daemon bootJar
 
 FROM eclipse-temurin:21-jre
