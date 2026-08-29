@@ -1,9 +1,9 @@
 -- Sample holdings/platforms for exercising the dashboard locally against a real Postgres.
--- NOT a Flyway migration (backend/src/main/resources/db/migration) and never will be — it must
+-- NOT a Flyway migration (src/main/resources/db/migration) and never will be — it must
 -- stay out of that folder so a real deploy never seeds a new user's account (CA-04.4: "Un usuario
 -- nuevo arranca vacío"). Run by hand, once, against your own dev database:
 --
---   psql "$SUPABASE_DB_URL" -v dev_user_id="'<your-auth.users.id>'" -f backend/scripts/seed-dev.sql
+--   psql "$SUPABASE_DB_URL" -v dev_user_id="'<your-auth.users.id>'" -f scripts/seed-dev.sql
 --
 -- <your-auth.users.id> is the UUID of a real row in auth.users (e.g. the account you log in with
 -- locally) — holdings.user_id/platforms.user_id both FK there, so an arbitrary UUID will fail.

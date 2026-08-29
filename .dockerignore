@@ -1,9 +1,7 @@
 .git/
-frontend/node_modules/
-frontend/.next/
-backend/.gradle/
-backend/build/
-backend/out/
-backend/bin/
-backend/.kotlin/
-backend/data/
+.gradle/
+build/
+out/
+bin/
+.kotlin/
+data/

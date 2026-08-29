@@ -53,7 +53,7 @@ logging:
     org.springframework.web: INFO
 
 ---
-# Dev: Postgres via backend/compose.yaml, auto-started by spring-boot-docker-compose
+# Dev: Postgres via compose.yaml, auto-started by spring-boot-docker-compose
 # (developmentOnly dependency) — connection details are derived from the running
 # container, no spring.datasource.* needed here. Active by default for `bootRun`
 # (see the bootRun task in build.gradle.kts); `./gradlew test` never activates this.

@@ -20,25 +20,10 @@ yarn-error.log*
 .env*.local
 *.env
 
-# Backend (Gradle / Java / Kotlin)
-backend/.gradle/
-backend/build/
-backend/out/
-backend/bin/
-backend/.kotlin/
-backend/data/
+# Gradle / Java / Kotlin
 .gradle/
 build/
 out/
 bin/
-
-# Frontend (Node / Next.js)
-frontend/node_modules/
-frontend/.next/
-frontend/out/
-frontend/.vercel/
-frontend/*.tsbuildinfo
-node_modules/
-.next/
-dist/
-coverage/
+.kotlin/
+data/

@@ -47,7 +47,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
 
-    // Auto-starts backend/compose.yaml's Postgres for `bootRun`; stripped from the prod jar
+    // Auto-starts compose.yaml's Postgres for `bootRun`; stripped from the prod jar
     // (developmentOnly), so it has zero footprint outside a developer's machine.
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
@@ -100,12 +100,13 @@ tasks.test {
         excludeTags("contract-drift")
     }
     finalizedBy(tasks.jacocoTestReport)
-    // contracts/openapi.yaml lives outside this Gradle project (specs/ is a sibling of backend/),
-    // so tests that validate against it (ContractValidation.kt, T-82) need an absolute path rather
-    // than one relative to whatever the test JVM's working directory happens to be.
+    // contracts/openapi.yaml lives outside this Gradle project's source sets (specs/ is a sibling
+    // of build.gradle.kts, not under src/), so tests that validate against it
+    // (ContractValidation.kt, T-82) need an absolute path rather than one relative to whatever the
+    // test JVM's working directory happens to be.
     systemProperty(
         "contracts.openapi.path",
-        file("../specs/001-backend-para-frontend/contracts/openapi.yaml").absolutePath,
+        file("specs/001-backend-para-frontend/contracts/openapi.yaml").absolutePath,
     )
 }
 
@@ -127,7 +128,7 @@ tasks.register<Test>("contractDriftCheck") {
     dependsOn("generateOpenApiDocs")
     systemProperty(
         "contracts.openapi.path",
-        file("../specs/001-backend-para-frontend/contracts/openapi.yaml").absolutePath,
+        file("specs/001-backend-para-frontend/contracts/openapi.yaml").absolutePath,
     )
     systemProperty("generated.openapi.path", file("docs/api/openapi.json").absolutePath)
 }
