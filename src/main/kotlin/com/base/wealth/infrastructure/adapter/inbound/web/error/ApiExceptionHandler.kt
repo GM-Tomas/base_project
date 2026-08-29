@@ -1,6 +1,5 @@
 package com.base.wealth.infrastructure.adapter.inbound.web.error
 
-import com.base.wealth.exception.BadRequestException
 import com.base.wealth.exception.DuplicateResourceException
 import com.base.wealth.exception.ResourceInUseException
 import com.base.wealth.exception.ResourceNotFoundException
@@ -19,10 +18,6 @@ class ApiExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException::class)
     fun handleNotFound(ex: ResourceNotFoundException): ProblemDetail =
         problemDetailOf(HttpStatus.NOT_FOUND, "not-found", ex.message)
-
-    @ExceptionHandler(BadRequestException::class)
-    fun handleBadRequest(ex: BadRequestException): ProblemDetail =
-        problemDetailOf(HttpStatus.BAD_REQUEST, "bad-request", ex.message)
 
     @ExceptionHandler(DuplicateResourceException::class, ResourceInUseException::class)
     fun handleConflict(ex: RuntimeException): ProblemDetail =

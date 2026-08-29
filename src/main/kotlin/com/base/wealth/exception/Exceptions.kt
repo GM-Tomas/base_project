@@ -4,10 +4,6 @@ class ResourceNotFoundException(
     message: String,
 ) : RuntimeException(message)
 
-class BadRequestException(
-    message: String,
-) : RuntimeException(message)
-
 /** A unique-name clash (e.g. platform name already in use for this user, case-insensitively). */
 class DuplicateResourceException(
     message: String,
