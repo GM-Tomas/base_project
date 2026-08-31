@@ -4,7 +4,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "wealth")
 data class WealthProperties(
-    val defaultFxUsdArs: Double = 1050.0,
     val cors: Cors = Cors(),
     val auth: Auth = Auth(),
 ) {

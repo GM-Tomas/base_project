@@ -7,17 +7,17 @@ import com.base.wealth.domain.model.UserId
 import com.base.wealth.domain.port.inbound.CreatePlatformCommand
 import com.base.wealth.domain.port.inbound.PatchPlatformCommand
 import com.base.wealth.domain.port.inbound.PlatformUseCase
-import com.base.wealth.domain.port.outbound.ClockPort
 import com.base.wealth.domain.port.outbound.PlatformRepository
 import com.base.wealth.exception.DuplicateResourceException
 import com.base.wealth.exception.ResourceInUseException
 import com.base.wealth.exception.ResourceNotFoundException
 import org.springframework.stereotype.Service
+import java.time.Clock
 
 @Service
 class PlatformService(
     private val platformRepository: PlatformRepository,
-    private val clock: ClockPort,
+    private val clock: Clock,
 ) : PlatformUseCase {
     override fun getAllPlatforms(userId: UserId): List<Platform> = platformRepository.findAll(userId)
 
@@ -26,7 +26,7 @@ class PlatformService(
         if (platformRepository.findByName(command.userId, name) != null) {
             throw DuplicateResourceException("Platform '${command.name}' already exists")
         }
-        val platform = Platform(command.userId, name, PlatformType.of(command.type), clock.now())
+        val platform = Platform(command.userId, name, PlatformType.of(command.type), clock.instant())
         return platformRepository.save(platform)
     }
 

@@ -9,18 +9,18 @@ import com.base.wealth.domain.model.UserId
 import com.base.wealth.domain.port.inbound.CreateHoldingCommand
 import com.base.wealth.domain.port.inbound.HoldingUseCase
 import com.base.wealth.domain.port.inbound.PatchHoldingCommand
-import com.base.wealth.domain.port.outbound.ClockPort
 import com.base.wealth.domain.port.outbound.HoldingRepository
 import com.base.wealth.domain.port.outbound.PlatformRepository
 import com.base.wealth.exception.ResourceNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Clock
 
 @Service
 class HoldingService(
     private val holdingRepository: HoldingRepository,
     private val platformRepository: PlatformRepository,
-    private val clock: ClockPort,
+    private val clock: Clock,
 ) : HoldingUseCase {
     override fun getAllHoldings(
         userId: UserId,
@@ -37,7 +37,7 @@ class HoldingService(
 
     @Transactional
     override fun createHolding(command: CreateHoldingCommand): Holding {
-        val now = clock.now()
+        val now = clock.instant()
         val platform = platformRepository.ensureExists(command.userId, PlatformName.of(command.platform), now)
         val holding =
             Holding.create(
@@ -59,7 +59,7 @@ class HoldingService(
                 assetClass = command.assetClass?.let { AssetClass.of(it) },
                 platform = command.platform?.let { PlatformName.of(it) },
                 value = command.valueUsd?.let { Money.of(it) },
-                now = clock.now(),
+                now = clock.instant(),
             )
         return holdingRepository.save(updated)
     }

@@ -8,7 +8,6 @@ import com.base.wealth.domain.model.PlatformName
 import com.base.wealth.domain.model.UserId
 import com.base.wealth.domain.port.inbound.CreateHoldingCommand
 import com.base.wealth.domain.port.inbound.PatchHoldingCommand
-import com.base.wealth.domain.port.outbound.ClockPort
 import com.base.wealth.domain.port.outbound.HoldingRepository
 import com.base.wealth.domain.port.outbound.PlatformRepository
 import com.base.wealth.exception.ResourceNotFoundException
@@ -20,6 +19,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import java.time.Clock
 import java.time.Instant
 import java.util.UUID
 
@@ -27,7 +27,7 @@ class HoldingServiceTest {
     private val userId = UserId(UUID.randomUUID())
     private val holdingRepository = mockk<HoldingRepository>()
     private val platformRepository = mockk<PlatformRepository>()
-    private val clock = mockk<ClockPort>()
+    private val clock = mockk<Clock>()
     private val service = HoldingService(holdingRepository, platformRepository, clock)
 
     @Test
@@ -43,7 +43,7 @@ class HoldingServiceTest {
     @DisplayName("createHolding creates the platform implicitly, in the same call (CA-02.2)")
     fun createHoldingEnsuresPlatformExists() {
         val now = Instant.parse("2026-06-15T10:00:00Z")
-        every { clock.now() } returns now
+        every { clock.instant() } returns now
         every { platformRepository.ensureExists(userId, PlatformName.of("Binance"), now) } returns
             PlatformName.of("Binance")
         val saved = slot<Holding>()
@@ -71,7 +71,7 @@ class HoldingServiceTest {
             )
         val now = Instant.parse("2026-06-15T10:00:00Z")
         every { holdingRepository.findById(userId, existing.id) } returns existing
-        every { clock.now() } returns now
+        every { clock.instant() } returns now
         val saved = slot<Holding>()
         every { holdingRepository.save(capture(saved)) } answers { saved.captured }
 

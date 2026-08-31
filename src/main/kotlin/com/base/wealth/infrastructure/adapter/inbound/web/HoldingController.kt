@@ -13,6 +13,7 @@ import com.base.wealth.domain.port.inbound.HoldingUseCase
 import com.base.wealth.domain.port.inbound.PatchHoldingCommand
 import com.base.wealth.infrastructure.adapter.inbound.security.CurrentUser
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -60,6 +61,7 @@ class HoldingController(
 
     @PostMapping
     @Operation(summary = "Crea una nueva posición de inversión")
+    @ApiResponse(responseCode = "201")
     fun createHolding(
         @CurrentUser userId: UUID,
         @Valid @RequestBody request: CreateHoldingRequest,
@@ -92,6 +94,7 @@ class HoldingController(
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Elimina una posición financiera")
+    @ApiResponse(responseCode = "204")
     fun deleteHolding(
         @CurrentUser userId: UUID,
         @PathVariable id: UUID,

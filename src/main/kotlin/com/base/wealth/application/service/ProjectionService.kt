@@ -5,18 +5,18 @@ import com.base.wealth.domain.model.projection.ProjectionParams
 import com.base.wealth.domain.port.inbound.ProjectionRequest
 import com.base.wealth.domain.port.inbound.ProjectionResult
 import com.base.wealth.domain.port.inbound.ProjectionUseCase
-import com.base.wealth.domain.port.outbound.ClockPort
 import com.base.wealth.domain.port.outbound.WealthAggregationPort
 import com.base.wealth.domain.service.ProjectionCalculator
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
+import java.time.Clock
 import java.time.YearMonth
 import java.time.ZoneOffset
 
 @Service
 class ProjectionService(
     private val wealthAggregationPort: WealthAggregationPort,
-    private val clock: ClockPort,
+    private val clock: Clock,
 ) : ProjectionUseCase {
     override fun project(request: ProjectionRequest): ProjectionResult {
         val principal = request.principalOverride?.let(Money::of) ?: wealthAggregationPort.netWorth(request.userId)
@@ -28,7 +28,7 @@ class ProjectionService(
                 years = request.years,
                 milestones = request.milestones.map(Money::of),
             )
-        val now = YearMonth.from(clock.now().atZone(ZoneOffset.UTC))
+        val now = YearMonth.from(clock.instant().atZone(ZoneOffset.UTC))
 
         return ProjectionResult(
             principal = params.principal,

@@ -14,8 +14,6 @@ import com.base.wealth.domain.model.UserId
 import com.base.wealth.domain.model.YtdGrowth
 import com.base.wealth.domain.port.inbound.WealthUseCase
 import com.base.wealth.domain.port.outbound.AssetClassAggregate
-import com.base.wealth.domain.port.outbound.ClockPort
-import com.base.wealth.domain.port.outbound.FxRatePort
 import com.base.wealth.domain.port.outbound.PlatformAggregate
 import com.base.wealth.domain.port.outbound.SnapshotRepository
 import com.base.wealth.domain.port.outbound.WealthAggregationPort
@@ -24,27 +22,30 @@ import com.base.wealth.domain.service.YtdGrowthCalculator
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
+import java.time.Clock
 import java.time.ZoneOffset
 
 private val ZERO_PCT: BigDecimal = BigDecimal.ZERO.setScale(1)
 
-// ponytail: liquidAssetClasses stays on @Value, not WealthProperties (infrastructure/config) —
-// this service is `application`, and depending on an infrastructure class here is the same layer
-// leak specs/001-backend-para-frontend/plan.md §8.2 checks for (see application/service/AssetClassService.kt).
+// ponytail: liquidAssetClasses and defaultFxUsdArs stay on @Value, not WealthProperties
+// (infrastructure/config) — this service is `application`, and depending on an infrastructure
+// class here is the same layer leak specs/001-backend-para-frontend/plan.md §8.2 checks for
+// (see application/service/AssetClassService.kt).
 @Service
 class WealthQueryService(
     private val wealthAggregationPort: WealthAggregationPort,
     private val snapshotRepository: SnapshotRepository,
-    private val fxRatePort: FxRatePort,
-    private val clock: ClockPort,
+    private val clock: Clock,
     @Value("\${wealth.liquid-asset-classes:Cash,Equity,Crypto,Index Fund}")
     private val liquidAssetClasses: List<String>,
+    @Value("\${wealth.default-fx-usd-ars:1050.0}")
+    private val defaultFxUsdArs: Double,
 ) : WealthUseCase {
     override fun getSummary(userId: UserId): WealthSummaryResponse {
         val netWorth = wealthAggregationPort.netWorth(userId)
         val byClass = wealthAggregationPort.byAssetClass(userId)
         val byPlatform = wealthAggregationPort.byPlatform(userId)
-        val year = clock.now().atZone(ZoneOffset.UTC).year
+        val year = clock.instant().atZone(ZoneOffset.UTC).year
 
         val ytd =
             YtdGrowthCalculator.calculate(
@@ -57,7 +58,7 @@ class WealthQueryService(
                 .breakdown(byClass.associate { it.assetClass to it.value })
 
         return WealthSummaryResponse(
-            netWorth = netWorth.toDto(fxRatePort.current()),
+            netWorth = netWorth.toDto(currentFxRate()),
             holdingsCount = byClass.sumOf { it.count },
             ytd = ytd.toDto(),
             liquidity =
@@ -71,9 +72,14 @@ class WealthQueryService(
         )
     }
 
-    // ponytail: FxRate has exactly one adapter today (FixedFxRateAdapter, D4) — "FIXED_CONFIG" is
-    // hardcoded here rather than modeled as a field on FxRate itself; add source to the domain
-    // type when a second adapter (e.g. a live-rate API) actually exists.
+    // ponytail: read straight from config (D4) — no live-rate source exists yet, add one (and a
+    // `source` other than "FIXED_CONFIG" below) when a view actually needs it.
+    private fun currentFxRate(): FxRate {
+        val rate = BigDecimal.valueOf(defaultFxUsdArs)
+        if (rate.signum() <= 0) return FxRate.Unavailable
+        return FxRate.Known(rate, clock.instant())
+    }
+
     private fun Money.toDto(fxRate: FxRate): NetWorthDTO =
         when (fxRate) {
             is FxRate.Known ->

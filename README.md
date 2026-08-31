@@ -1,4 +1,4 @@
-# BASE Wealth Management & Tasks - Backend API (Kotlin)
+# BASE Wealth Management - Backend API (Kotlin)
 
 API REST moderna, reactiva y testeable construida con **Kotlin 1.9+**, **Spring Boot 3.3**, y **Gradle Kotlin DSL**.
 

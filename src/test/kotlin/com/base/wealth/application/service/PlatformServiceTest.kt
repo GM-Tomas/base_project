@@ -6,7 +6,6 @@ import com.base.wealth.domain.model.PlatformType
 import com.base.wealth.domain.model.UserId
 import com.base.wealth.domain.port.inbound.CreatePlatformCommand
 import com.base.wealth.domain.port.inbound.PatchPlatformCommand
-import com.base.wealth.domain.port.outbound.ClockPort
 import com.base.wealth.domain.port.outbound.PlatformRepository
 import com.base.wealth.exception.DuplicateResourceException
 import com.base.wealth.exception.ResourceInUseException
@@ -17,13 +16,14 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import java.time.Clock
 import java.time.Instant
 import java.util.UUID
 
 class PlatformServiceTest {
     private val userId = UserId(UUID.randomUUID())
     private val platformRepository = mockk<PlatformRepository>()
-    private val clock = mockk<ClockPort>()
+    private val clock = mockk<Clock>()
     private val service = PlatformService(platformRepository, clock)
 
     @Test

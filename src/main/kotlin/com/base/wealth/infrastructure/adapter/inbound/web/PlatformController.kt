@@ -10,6 +10,7 @@ import com.base.wealth.domain.port.inbound.PatchPlatformCommand
 import com.base.wealth.domain.port.inbound.PlatformUseCase
 import com.base.wealth.infrastructure.adapter.inbound.security.CurrentUser
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -43,6 +44,7 @@ class PlatformController(
 
     @PostMapping
     @Operation(summary = "Crea una nueva plataforma")
+    @ApiResponse(responseCode = "201")
     fun createPlatform(
         @CurrentUser userId: UUID,
         @Valid @RequestBody request: CreatePlatformRequest,
@@ -67,6 +69,8 @@ class PlatformController(
 
     @DeleteMapping("/{name}")
     @Operation(summary = "Elimina una plataforma sin posiciones asociadas")
+    @ApiResponse(responseCode = "204")
+    @ApiResponse(responseCode = "409", description = "La plataforma todavía tiene posiciones asociadas")
     fun deletePlatform(
         @CurrentUser userId: UUID,
         @PathVariable name: String,

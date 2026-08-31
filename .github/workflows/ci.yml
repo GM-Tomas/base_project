@@ -27,10 +27,10 @@ jobs:
       - name: detekt
         run: ./gradlew detekt
 
-      # One task covers unit + Testcontainers integration tests + the Konsist architecture tests
-      # (plan.md §8.2/§8.3) — they're all plain JUnit tests on the same `test` task, not separate
-      # Gradle tasks.
-      - name: test (unit + integration + architecture)
+      # Unit tests + Testcontainers integration tests + per-response contract validation against
+      # contracts/openapi.yaml (ContractValidation.kt, T-82) — all plain JUnit tests on the same
+      # `test` task, not separate Gradle tasks.
+      - name: test (unit + integration + contract)
         run: ./gradlew test
 
       - name: jacocoTestCoverageVerification

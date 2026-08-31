@@ -1,16 +1,8 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "BASE Wealth Management \u0026 Tasks API",
-    "description": "REST API construida con Kotlin y Spring Boot 3 para gestión de activos patrimoniales, proyecciones financieras y tareas.",
-    "contact": {
-      "name": "BASE Engineering Team",
-      "email": "dev@base-wealth.internal"
-    },
-    "license": {
-      "name": "Apache 2.0",
-      "url": "https://www.apache.org/licenses/LICENSE-2.0"
-    },
+    "title": "BASE Wealth Management API",
+    "description": "REST API construida con Kotlin y Spring Boot 3 para gestión de activos patrimoniales y proyecciones financieras.",
     "version": "1.0.0"
   },
   "servers": [
@@ -50,15 +42,6 @@
         "summary": "Serie histórica de patrimonio neto, con variación porcentual contra el punto anterior",
         "operationId": "getSnapshots",
         "parameters": [
-          {
-            "name": "userId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
           {
             "name": "from",
             "in": "query",
@@ -100,20 +83,19 @@
         ],
         "summary": "Captura un snapshot del patrimonio actual, calculado en el servidor",
         "operationId": "createSnapshot",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
         "responses": {
-          "200": {
-            "description": "OK",
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnapshotResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Ya existe un snapshot para este segundo",
             "content": {
               "*/*": {
                 "schema": {
@@ -132,17 +114,6 @@
         ],
         "summary": "Lista todas las plataformas del usuario, incluidas las que no tienen posiciones",
         "operationId": "getAllPlatforms",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -165,17 +136,6 @@
         ],
         "summary": "Crea una nueva plataforma",
         "operationId": "createPlatform",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -187,8 +147,8 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK",
+          "201": {
+            "description": "Created",
             "content": {
               "*/*": {
                 "schema": {
@@ -208,15 +168,6 @@
         "summary": "Lista las posiciones del usuario, opcionalmente filtradas por clase o plataforma",
         "operationId": "getAllHoldings",
         "parameters": [
-          {
-            "name": "userId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
           {
             "name": "assetClass",
             "in": "query",
@@ -256,17 +207,6 @@
         ],
         "summary": "Crea una nueva posición de inversión",
         "operationId": "createHolding",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -278,8 +218,8 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK",
+          "201": {
+            "description": "Created",
             "content": {
               "*/*": {
                 "schema": {
@@ -300,15 +240,6 @@
         "operationId": "deletePlatform",
         "parameters": [
           {
-            "name": "userId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
             "name": "name",
             "in": "path",
             "required": true,
@@ -318,8 +249,11 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "No Content"
+          },
+          "409": {
+            "description": "La plataforma todavía tiene posiciones asociadas"
           }
         }
       },
@@ -330,15 +264,6 @@
         "summary": "Renombra o recategoriza una plataforma existente",
         "operationId": "patchPlatform",
         "parameters": [
-          {
-            "name": "userId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
           {
             "name": "name",
             "in": "path",
@@ -381,15 +306,6 @@
         "operationId": "getHoldingById",
         "parameters": [
           {
-            "name": "userId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
             "name": "id",
             "in": "path",
             "required": true,
@@ -420,15 +336,6 @@
         "operationId": "deleteHolding",
         "parameters": [
           {
-            "name": "userId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
             "name": "id",
             "in": "path",
             "required": true,
@@ -439,8 +346,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "No Content"
           }
         }
       },
@@ -451,15 +358,6 @@
         "summary": "Actualiza parcialmente los datos de una posición existente",
         "operationId": "updateHolding",
         "parameters": [
-          {
-            "name": "userId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
           {
             "name": "id",
             "in": "path",
@@ -501,17 +399,6 @@
         ],
         "summary": "Obtiene el resumen consolidado de patrimonio neto, métricas y distribuciones",
         "operationId": "getSummary",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -534,15 +421,6 @@
         "summary": "Calcula la proyección de interés compuesto y el progreso de hitos financieros",
         "operationId": "getEstimate",
         "parameters": [
-          {
-            "name": "userId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
           {
             "name": "contribution",
             "in": "query",
@@ -646,17 +524,6 @@
         ],
         "summary": "Lista las clases de activo por defecto, en uso, y la unión de ambas",
         "operationId": "getAvailableAssetClasses",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "OK",

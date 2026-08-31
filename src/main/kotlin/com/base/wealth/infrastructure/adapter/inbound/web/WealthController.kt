@@ -16,6 +16,7 @@ import com.base.wealth.domain.port.inbound.SnapshotWithChange
 import com.base.wealth.domain.port.inbound.WealthUseCase
 import com.base.wealth.infrastructure.adapter.inbound.security.CurrentUser
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.constraints.DecimalMax
 import jakarta.validation.constraints.DecimalMin
@@ -104,6 +105,8 @@ class WealthController(
 
     @PostMapping("/snapshots")
     @Operation(summary = "Captura un snapshot del patrimonio actual, calculado en el servidor")
+    @ApiResponse(responseCode = "201")
+    @ApiResponse(responseCode = "409", description = "Ya existe un snapshot para este segundo")
     fun createSnapshot(
         @CurrentUser userId: UUID,
     ): ResponseEntity<SnapshotResponse> {

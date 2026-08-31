@@ -70,9 +70,6 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
 
-    // Architecture tests (see architecture/ArchitectureTest.kt)
-    testImplementation("com.lemonappdev:konsist:0.17.3")
-
     // Contract tests: validates real controller responses against contracts/openapi.yaml
     // (see support/ContractValidation.kt, tasks.md T-82) and pulls in swagger-parser, reused by
     // OpenApiContractDriftTest (T-83) to also parse docs/api/openapi.json — no separate YAML/JSON
